@@ -1,5 +1,7 @@
 # Notes
 
+- I am using GSL for easy null checking... `gsl::not_null`
+
 ## GLEW
 
 - Allows interfacing with newer OpenGL versions

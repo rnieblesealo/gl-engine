@@ -13,14 +13,32 @@ add_executable(GLEngine
   "${GLEngineSources}"
 )
 
-find_package(glfw3 3.4 REQUIRED)
+find_package(glfw3 REQUIRED)
 find_package(GLEW REQUIRED)
+find_package(glm REQUIRED)
+
+include(FetchContent)
+
+FetchContent_Declare(
+    microsoft-gsl
+    GIT_REPOSITORY "https://github.com/microsoft/GSL"
+    GIT_TAG "v4.2.0"
+    GIT_SHALLOW TRUE
+)
+
+FetchContent_MakeAvailable(microsoft-gsl)
 
 target_link_libraries(GLEngine PRIVATE
   glfw
+  glm::glm
   GLEW::GLEW
+  Microsoft.GSL::GSL
 )
 
 target_compile_features(GLEngine PRIVATE
   cxx_std_17
+)
+
+target_precompile_headers(GLEngine PRIVATE
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/precomp.h"
 )
