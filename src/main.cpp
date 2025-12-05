@@ -4,9 +4,9 @@
 #include <filesystem>
 #include <glm/glm.hpp>
 
-namespace
+namespace gle
 {
-const GLint WIDTH         = 800;
+const GLint WINDOW_WIDTH  = 800;
 const GLint WINDOW_HEIGHT = 600;
 
 const std::filesystem::path VERTEX_SHADER_PATH("../src/glsl/vertex.glsl");
@@ -14,24 +14,27 @@ const std::filesystem::path FRAGMENT_SHADER_PATH("../src/glsl/fragment.glsl");
 
 GLuint VAO, VBO, shader;
 
+void EnableForwardCompat() {}
+
 void CreateTriangle()
 {
   // clang-format off
   std::array<GLfloat, 9> vertices[] = {
     -1.0f, -1.0f, 0.0f, 
      1.0f, -1.0f, 0.0f, 
-     0.0f,  1.0f, 0.0f
+     0.0f,  1.0f, 0.0f, 
   };
   // clang-format on
 
   glGenVertexArrays(1,
                     &VAO); // Create 1 VAO name in GPU memory; store ID at VAO. Pass GLuint array pointer for >1 VAOs
-  glBindVertexArray(VAO);  // Render with this VAO
+
+  glBindVertexArray(VAO); // Render with this VAO
 
   glGenBuffers(1, &VBO);              // Create 1 VBO name in GPU memory; store ID at VBO
   glBindBuffer(GL_ARRAY_BUFFER, VBO); // Bind our VBO name to the GL_ARRAY_BUFFER target
   glBufferData(GL_ARRAY_BUFFER,
-               vertices->size(),
+               sizeof vertices, // WARNING: This needs to be BYTE SIZE of vertices array, not element size!
                vertices,
                GL_STATIC_DRAW); // Allocate and initialize the VBO bound to GL_ARRAY_BUFFER with our vertex data
 
@@ -53,18 +56,107 @@ void CreateTriangle()
   glBindVertexArray(0);             // Unbind VAO
 }
 
-void CompileShaders(std::filesystem::path vertex_shader_path, std::filesystem::path fragment_shader_path)
+void AddShader(GLuint program, std::string const &shader_code, GLenum shader_type)
 {
-  std::string vertex_shader_code(gle::ReadWholeFile(vertex_shader_path));
-  std::string fragment_shader_code(gle::ReadWholeFile(fragment_shader_path));
+  // Create shader object
+
+  GLuint the_shader = glCreateShader(shader_type); // Make empty shader of given type and return its ID
+
+  // Assemble the source
+
+  /* NOTE: We can stitch together multiple sources into one file
+   * This is why we pack shader source into arrays
+   */
+
+  std::array<GLchar const *, 1> the_code{0};
+  the_code[0] = shader_code.data();
+
+  std::array<GLint, 1> code_length{0};
+  code_length[0] = shader_code.size();
+
+  glShaderSource(the_shader, 1, the_code.data(), code_length.data()); // Param 1 here means only one piece of source
+
+  // Compile the shader
+
+  glCompileShader(the_shader);
+
+  GLint       result = 0;
+  std::string error_log(1024, 0);
+
+  glGetShaderiv(the_shader, GL_COMPILE_STATUS, &result);
+  if (!result)
+  {
+    glGetShaderInfoLog(the_shader, error_log.size(), NULL, error_log.data());
+
+    std::cerr << "Error compiling shader program: " << error_log << std::endl;
+
+    return;
+  }
+
+  // Add compiled shader to program
+
+  glAttachShader(program, the_shader);
 }
-} // namespace
+
+void CompileShaders()
+{
+  shader = glCreateProgram();
+  if (!shader)
+  {
+    std::cerr << "Error creating shader program" << std::endl;
+    return;
+  }
+
+  std::string v_shader_code(gle::ReadWholeFile(VERTEX_SHADER_PATH));
+  std::string f_shader_code(gle::ReadWholeFile(FRAGMENT_SHADER_PATH));
+
+  // Compile & attach shader programs
+
+  AddShader(shader, v_shader_code, GL_VERTEX_SHADER);
+  AddShader(shader, f_shader_code, GL_FRAGMENT_SHADER);
+
+  GLint       result = 0;
+  std::string error_log(1024, 0);
+
+  // Link: The "compilation" process
+
+  glLinkProgram(shader);
+  glGetProgramiv(shader, GL_LINK_STATUS, &result);
+  if (!result)
+  {
+    glGetProgramInfoLog(shader, error_log.size(), NULL, error_log.data());
+
+    std::cerr << "Error linking shader program: " << error_log << std::endl;
+
+    return;
+  }
+
+  // Validate: Does this program work within our OpenGL setup?
+
+  glBindVertexArray(gle::VAO); // WARNING: Must bind VAO to validate against it
+
+  glValidateProgram(shader);
+  glGetProgramiv(shader, GL_VALIDATE_STATUS, &result);
+  if (!result)
+  {
+    glGetProgramInfoLog(shader, error_log.size(), NULL, error_log.data());
+
+    std::cerr << "Error validating shader program: " << error_log << std::endl;
+
+    return;
+  }
+
+  glBindVertexArray(0);
+}
+} // namespace gle
 
 int main()
 {
   // Start GLFW
   if (glfwInit() != GLFW_TRUE)
   {
+    std::cerr << "Error initializing GLFW" << std::endl;
+
     std::exit(EXIT_FAILURE);
   }
 
@@ -76,7 +168,8 @@ int main()
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // Enable forward compatibility
 
   // Initialize window
-  gsl::not_null<GLFWwindow *> main_window = glfwCreateWindow(WIDTH, WINDOW_HEIGHT, "GLEngine", NULL, NULL);
+  gsl::not_null<GLFWwindow *> main_window =
+      glfwCreateWindow(gle::WINDOW_WIDTH, gle::WINDOW_HEIGHT, "GLEngine", NULL, NULL);
 
   // Get window framebuffer size
   glm::ivec2 fb_size;
@@ -93,6 +186,8 @@ int main()
   // Initialize GLEW
   if (glewInit() != GLEW_OK)
   {
+    std::cerr << "Error initializing GLEW" << std::endl;
+
     glfwDestroyWindow(main_window);
     glfwTerminate();
 
@@ -102,6 +197,9 @@ int main()
   // Set viewport (draw area) to be full framebuffer
   glViewport(0, 0, fb_size.x, fb_size.y);
 
+  gle::CreateTriangle();
+  gle::CompileShaders();
+
   // Main loop
   while (!glfwWindowShouldClose(main_window))
   {
@@ -109,6 +207,14 @@ int main()
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background clear color
     glClear(GL_COLOR_BUFFER_BIT);         // Clear background
+
+    // clang-format off
+    glUseProgram(gle::shader);
+      glBindVertexArray(gle::VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 3); // Arg 1: Start vertex we wanna draw; Arg 2: Amt. of vertices to draw
+      glBindVertexArray(0);
+    glUseProgram(0);
+    // clang-format on
 
     glfwSwapBuffers(main_window); // 2 buffer system
   }
