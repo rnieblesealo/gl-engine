@@ -9,8 +9,9 @@
 
 namespace gle
 {
-const GLint WINDOW_WIDTH  = 800;
-const GLint WINDOW_HEIGHT = 600;
+const GLint     WINDOW_WIDTH  = 500;
+const GLint     WINDOW_HEIGHT = 500;
+const glm::vec3 FORWARD(0.0f, 0.0f, 1.0f);
 
 const std::filesystem::path VERTEX_SHADER_PATH("../src/glsl/vertex.glsl");
 const std::filesystem::path FRAGMENT_SHADER_PATH("../src/glsl/fragment.glsl");
@@ -25,10 +26,12 @@ typedef enum Direction
   RIGHT
 } Direction;
 
-Direction tri_direction  = RIGHT;  // Direction where tri is moving right now
-float     tri_offset     = 0.0f;   // Current triangle displacement
-float     tri_max_offset = 0.5f;   // Flip direction once we get this far
-float     tri_increment  = 0.005f; // Amount to move tri by
+Direction tri_direction     = RIGHT; // Direction where tri is moving right now
+float     tri_offset        = 0.0f;  // Current triangle displacement
+float     tri_max_offset    = 0.5f;  // Flip direction once we get this far
+float     tri_pos_increment = 0.0f;  // Amount to move tri by every frame
+float     tri_rot_increment = 0.08f; // Rotate by
+float     tri_rotation_deg  = 0.0f;  // Current tri rotation
 
 void CreateTriangle()
 {
@@ -228,11 +231,11 @@ int main()
     // Move tri in the direction it's meant to be going in
     if (gle::tri_direction == gle::Direction::RIGHT)
     {
-      gle::tri_offset += gle::tri_increment;
+      gle::tri_offset += gle::tri_pos_increment;
     }
     else if (gle::tri_direction == gle::Direction::LEFT)
     {
-      gle::tri_offset -= gle::tri_increment;
+      gle::tri_offset -= gle::tri_pos_increment;
     }
 
     // Switch tri direction when hitting max offset
@@ -249,6 +252,14 @@ int main()
       }
     }
 
+    // Rotate tri
+    if (gle::tri_rotation_deg >= 360)
+    {
+      gle::tri_rotation_deg = 0;
+    }
+
+    gle::tri_rotation_deg += gle::tri_rot_increment;
+
     // RENDER ---------------------------------------------------------------------------------------------------------
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background clear color
@@ -258,7 +269,10 @@ int main()
     glUseProgram(gle::shader);
 
       glm::mat4 model(1.0f);
-      model = glm::translate(model, glm::vec3(gle::tri_offset, gle::tri_offset, 0.0f));
+
+      model = glm::translate(model, glm::vec3(gle::tri_offset, gle::tri_offset, 0.0f)); // Translate
+      model = glm::rotate(model, glm::radians(gle::tri_rotation_deg), gle::FORWARD);    // Rotate around Z (forward)
+
       glUniformMatrix4fv(gle::uniform_model,
                          1,        // Passing only 1 matrix
                          GL_FALSE, // Do NOT transpose
