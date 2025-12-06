@@ -1,6 +1,7 @@
 #include "util.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <cstdlib>
 #include <filesystem>
 #include <glm/glm.hpp>
 
@@ -12,9 +13,20 @@ const GLint WINDOW_HEIGHT = 600;
 const std::filesystem::path VERTEX_SHADER_PATH("../src/glsl/vertex.glsl");
 const std::filesystem::path FRAGMENT_SHADER_PATH("../src/glsl/fragment.glsl");
 
-GLuint VAO, VBO, shader;
+GLuint VAO, VBO;
+GLuint shader;
+GLuint uniform_x_move;
 
-void EnableForwardCompat() {}
+typedef enum Direction
+{
+  LEFT = 0,
+  RIGHT
+} Direction;
+
+Direction tri_direction  = RIGHT;  // Direction where tri is moving right now
+float     tri_offset     = 0.0f;   // Current triangle displacement
+float     tri_max_offset = 0.5f;   // Flip direction once we get this far
+float     tri_increment  = 0.005f; // Amount to move tri by
 
 void CreateTriangle()
 {
@@ -147,6 +159,8 @@ void CompileShaders()
   }
 
   glBindVertexArray(0);
+
+  uniform_x_move = glGetUniformLocation(shader, "x_move");
 }
 } // namespace gle
 
@@ -205,11 +219,40 @@ int main()
   {
     glfwPollEvents();
 
+    // UPDATE ---------------------------------------------------------------------------------------------------------
+
+    // Move tri in the direction it's meant to be going in
+    if (gle::tri_direction == gle::Direction::RIGHT)
+    {
+      gle::tri_offset += gle::tri_increment;
+    }
+    else if (gle::tri_direction == gle::Direction::LEFT)
+    {
+      gle::tri_offset -= gle::tri_increment;
+    }
+
+    // Switch tri direction when hitting max offset
+    if (std::abs(gle::tri_offset) >= gle::tri_max_offset)
+    {
+      if (gle::tri_direction == gle::Direction::LEFT)
+      {
+        gle::tri_direction = gle::Direction::RIGHT;
+      }
+
+      else
+      {
+        gle::tri_direction = gle::Direction::LEFT;
+      }
+    }
+
+    // RENDER ---------------------------------------------------------------------------------------------------------
+
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background clear color
     glClear(GL_COLOR_BUFFER_BIT);         // Clear background
 
     // clang-format off
     glUseProgram(gle::shader);
+      glUniform1f(gle::uniform_x_move, gle::tri_offset); // Write uniform to shader
       glBindVertexArray(gle::VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3); // Arg 1: Start vertex we wanna draw; Arg 2: Amt. of vertices to draw
       glBindVertexArray(0);
