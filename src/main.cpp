@@ -11,12 +11,13 @@ namespace gle
 {
 const GLint     WINDOW_WIDTH  = 800;
 const GLint     WINDOW_HEIGHT = 600;
-const glm::vec3 FORWARD(0.0f, 0.0f, 1.0f);
+const glm::vec3 FORWARD{0.0f, 0.0f, 1.0f};
+const glm::vec3 UP{0.0f, 1.0f, 0.0f};
 
 const std::filesystem::path VERTEX_SHADER_PATH("../src/glsl/vertex.glsl");
 const std::filesystem::path FRAGMENT_SHADER_PATH("../src/glsl/fragment.glsl");
 
-GLuint VAO, VBO;
+GLuint VAO, VBO, EBO;
 GLuint shader;
 GLuint uniform_model;
 
@@ -32,35 +33,47 @@ float     tri_trans_max       = 0.0f;  // Flip direction once we get this far
 float     tri_trans_increment = 0.0f;  // Amount to move tri by every frame
 
 float tri_rot           = 0.0f;  // Current tri rotation
-float tri_rot_increment = 0.02f; // Rotate by
+float tri_rot_increment = 0.25f; // Rotate by
 
 Direction tri_scale_dir       = RIGHT;
-float     tri_scale           = 1.0f;
+float     tri_scale           = 0.5f;
 float     tri_scale_min       = 0.5f;
-float     tri_scale_max       = 1.0f;
-float     tri_scale_increment = 0.001f;
+float     tri_scale_max       = 0.5f;
+float     tri_scale_increment = 0.0f;
 
 void CreateTriangle()
 {
   // clang-format off
-  std::array<GLfloat, 9> vertices[] = {
-    -1.0f, -1.0f, 0.0f, 
-     1.0f, -1.0f, 0.0f, 
-     0.0f,  1.0f, 0.0f, 
+  std::array<GLfloat, 12> vertices = {
+    -1.0f, -1.0f,  0.0f, 
+     0.0f, -1.0f,  1.0f, // Back coord; #WARNING: Looks like Z goes into the screen!
+     1.0f, -1.0f,  0.0f, 
+     0.0f,  1.0f,  0.0f, 
+  };
+
+  // These form a shitty pyramid :)
+  std::array<GLuint, 12> indices = {
+    0, 3, 1,
+    1, 3, 2,
+    2, 3, 0,
+    0, 1, 2
   };
   // clang-format on
 
   glGenVertexArrays(1,
                     &VAO); // Create 1 VAO name in GPU memory; store ID at VAO. Pass GLuint array pointer for >1 VAOs
-
-  glBindVertexArray(VAO); // Render with this VAO
+  glBindVertexArray(VAO);  // Render with this VAO
 
   glGenBuffers(1, &VBO);              // Create 1 VBO name in GPU memory; store ID at VBO
   glBindBuffer(GL_ARRAY_BUFFER, VBO); // Bind our VBO name to the GL_ARRAY_BUFFER target
   glBufferData(GL_ARRAY_BUFFER,
-               sizeof vertices, // WARNING: This needs to be BYTE SIZE of vertices array, not element size!
-               vertices,
+               sizeof vertices, // WARNING: This needs to be BYTE SIZE, not element size
+               vertices.data(),
                GL_STATIC_DRAW); // Allocate and initialize the VBO bound to GL_ARRAY_BUFFER with our vertex data
+
+  glGenBuffers(1, &EBO);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof indices, indices.data(), GL_STATIC_DRAW);
 
   // Specify how we'll interpret vertex data for a specific index in the shader
   glVertexAttribPointer(0,        // Index of vertex data in shader; layout(location = 0) here...
@@ -76,8 +89,9 @@ void CreateTriangle()
 
   // Pattern: Define for 0, set for 0...
 
-  glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind VBO
-  glBindVertexArray(0);             // Unbind VAO
+  glBindBuffer(GL_ARRAY_BUFFER, 0);         // Unbind VBO
+  glBindVertexArray(0);                     // Unbind VAO
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // Unbind EBO, WARNING: Must be unbound AFTER VAO!
 }
 
 void AddShader(GLuint program, std::string const &shader_code, GLenum shader_type)
@@ -296,9 +310,9 @@ int main()
 
       glm::mat4 model(1.0f);
 
-      model = glm::translate(model, glm::vec3(gle::tri_trans, gle::tri_trans, 0.0f)); // Translate
-      model = glm::rotate(model, glm::radians(gle::tri_rot), gle::FORWARD);           // Rotate around Z (forward)
-      model = glm::scale(model, glm::vec3(gle::tri_scale, gle::tri_scale, 1.0f));     // Rotate around Z (forward)
+      model = glm::translate(model, glm::vec3(gle::tri_trans, gle::tri_trans, 0.0f));
+      model = glm::rotate(model, glm::radians(gle::tri_rot), gle::UP);
+      model = glm::scale(model, glm::vec3(gle::tri_scale, gle::tri_scale, 1.0f));
 
       glUniformMatrix4fv(gle::uniform_model,
                          1,        // Passing only 1 matrix
@@ -306,7 +320,9 @@ int main()
                          glm::value_ptr(model));
 
       glBindVertexArray(gle::VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3); // Arg 1: Start vertex we wanna draw; Arg 2: Amt. of vertices to draw
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gle::EBO);
+          glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
       glBindVertexArray(0);
     glUseProgram(0);
     // clang-format on 
