@@ -108,9 +108,11 @@ bool Shader::Validate(GLuint vao)
 
 GLuint Shader::GetShaderIndex() { return this->_shader; }
 
-// FIXME: Find a better way to do this... Will probably get annoying to have one for each type!
 void Shader::WriteUniformMat4(std::string const &uniform_name, glm::mat4 const &new_value)
 {
+  // WARNING: Shader must be bound!
+  glUseProgram(this->_shader);
+
   GLint u_loc = glGetUniformLocation(this->_shader, uniform_name.c_str());
   if (u_loc == -1)
   {
@@ -118,5 +120,7 @@ void Shader::WriteUniformMat4(std::string const &uniform_name, glm::mat4 const &
   }
 
   glUniformMatrix4fv(u_loc, 1, GL_FALSE, glm::value_ptr(new_value));
+
+  glUseProgram(0);
 }
 } // namespace gle
