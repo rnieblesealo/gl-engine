@@ -63,3 +63,8 @@ shader.WriteUniform("uniform_name", new_value); // Knows type and handles accord
 
 - **WARNING:** RIGHT NOW, THE COUPLING RELATIONSHIP BETWEEN SHADER AND MESH MIGHT BE A PERFORMANCE ISSUE
 > e.g. Having to bind and unbind the shader every time we set a uniform might be expensive... *Investigate!*
+
+# Learnings
+
+- It's wise to use library-specific types with that library; they may be aliases that help that type behave the same across systems.
+> `GLfloat` for GL stuff, `glm::float32` for GLM stuff, etc.

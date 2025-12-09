@@ -1,5 +1,6 @@
 #include "mesh.h"
 #include "shader.h"
+#include "window.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <cstdlib>
@@ -7,15 +8,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <iostream>
 
 namespace gle
 {
-const GLint WINDOW_WIDTH  = 500;
-const GLint WINDOW_HEIGHT = 500;
-
-glm::ivec2 fb_size; // Bounds of framebuffer
-
 const std::filesystem::path VERTEX_SHADER_PATH("../src/glsl/vertex.glsl");
 const std::filesystem::path FRAGMENT_SHADER_PATH("../src/glsl/fragment.glsl");
 
@@ -29,52 +24,7 @@ int main()
   // GL SETUP
   // ==================================================================================================================
 
-  // Start GLFW
-  if (glfwInit() != GLFW_TRUE)
-  {
-    std::cerr << "Error initializing GLFW" << std::endl;
-
-    std::exit(EXIT_FAILURE);
-  }
-
-  // Setup GLFW window
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3); // OpenGL 3.3
-  glfwWindowHint(GLFW_OPENGL_PROFILE,
-                 GLFW_OPENGL_CORE_PROFILE);            // Use core profile; essentially disables backwards compat
-  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // Enable forward compatibility
-
-  // Initialize window
-  GLFWwindow *main_window = glfwCreateWindow(gle::WINDOW_WIDTH, gle::WINDOW_HEIGHT, "GLEngine", NULL, NULL);
-
-  // Get initial framebuffer size
-  glfwGetFramebufferSize(main_window, &gle::fb_size.x, &gle::fb_size.y);
-
-  // Set GLEW context
-  // Essentially tell it that this window is the one bound to our OpenGL context
-  // "Hey GLEW, draw stuff to this window!"
-  glfwMakeContextCurrent(main_window);
-
-  // Allow modern extensions
-  glewExperimental = GL_TRUE;
-
-  // Initialize GLEW
-  if (glewInit() != GLEW_OK)
-  {
-    std::cerr << "Error initializing GLEW" << std::endl;
-
-    glfwDestroyWindow(main_window);
-    glfwTerminate();
-
-    std::exit(EXIT_FAILURE);
-  }
-
-  // Set viewport (draw area) to be full framebuffer
-  glViewport(0, 0, gle::fb_size.x, gle::fb_size.y);
-
-  // glEnable turns on additional OpenGL features
-  // This enables depth testing
-  glEnable(GL_DEPTH_TEST);
+  gle::Window window;
 
   // ==================================================================================================================
   // PYRAMID SETUP
@@ -104,11 +54,11 @@ int main()
   // MAIN LOOP
   // ==================================================================================================================
 
-  while (!glfwWindowShouldClose(main_window))
+  while (!glfwWindowShouldClose(window.GetHandle()))
   {
-    glfwPollEvents();
-
     // UPDATE ---------------------------------------------------------------------------------------------------------
+
+    glfwPollEvents();
 
     // Rotate triangle
     gle::tri_rot += gle::tri_rot_delta;
@@ -126,23 +76,29 @@ int main()
     pyramid_shader.WriteUniformMat4("model", model);
 
     // Update framebuffer size to keep aspect corrected
-    glfwGetFramebufferSize(main_window, &gle::fb_size.x, &gle::fb_size.y);
-    glViewport(0, 0, gle::fb_size.x, gle::fb_size.y); // Must update viewport to match!
+    window.PollFramebufferSize();
+    glViewport(0, 0, window.GetFramebufferWidth(), window.GetFramebufferHeight()); // Must update viewport to match!
 
     // Assemble projection matrix
-    glm::mat4 projection = glm::perspective(
-        glm::radians(60.0f), static_cast<GLfloat>(gle::fb_size.x) / static_cast<GLfloat>(gle::fb_size.y), 0.1f, 100.0f);
+    glm::float32 fov  = glm::radians(60.0f);
+    glm::float32 near = 0.1f;
+    glm::float32 far  = 100.0f;
+
+    glm::mat4 projection = glm::perspective(fov,
+                                            static_cast<GLfloat>(window.GetFramebufferWidth()) /
+                                                static_cast<GLfloat>(window.GetFramebufferHeight()),
+                                            near,
+                                            far);
 
     pyramid_shader.WriteUniformMat4("projection", projection);
 
     // RENDER ---------------------------------------------------------------------------------------------------------
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background clear color
-    glClear(GL_COLOR_BUFFER_BIT |
-            GL_DEPTH_BUFFER_BIT); // Fill color buffer with clear color, fill depth buffer with cleared depth color
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     pyramid.Draw();
 
-    glfwSwapBuffers(main_window); // 2 buffer system
+    glfwSwapBuffers(window.GetHandle());
   }
 }

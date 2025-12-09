@@ -1,17 +1,11 @@
 #pragma once
 
 #include <GL/glew.h>
-#include <cstdint>
 #include <glm/glm.hpp>
 #include <string>
 
 namespace gle
 {
-typedef enum UniformType : uint32_t
-{
-  MAT4 = 0
-} UniformType;
-
 class Shader
 {
 public:

@@ -15,7 +15,6 @@ public:
   ~Mesh();
 
   void Draw();
-  void Validate(GLuint vao);
 
 private:
   GLuint  _vao, _vbo, _ebo;
