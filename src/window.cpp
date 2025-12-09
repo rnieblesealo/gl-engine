@@ -40,7 +40,16 @@ Window::Window()
 
   glViewport(0, 0, this->_fb_width, this->_fb_height);
 
+  glfwSetWindowUserPointer(this->_window, this); // Says that this class is the user of its member window
+
   glEnable(GL_DEPTH_TEST);
+
+  // Create event callbacks
+  glfwSetKeyCallback(this->_window, this->_HandleKeys); // Call key handler whenever a key is pressed in this window
+  glfwSetCursorPosCallback(this->_window, this->_HandleMouse); // You can guess what this does
+
+  // Ensure cursor stays at screen center and is hidden
+  glfwSetInputMode(this->_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
 Window::~Window()
@@ -58,4 +67,36 @@ void Window::PollFramebufferSize() { glfwGetFramebufferSize(this->_window, &this
 GLsizei Window::GetFramebufferWidth() { return this->_fb_width; }
 
 GLsizei Window::GetFramebufferHeight() { return this->_fb_height; }
+
+void Window::_HandleKeys(GLFWwindow *window, int key, int code, int action, int mode)
+{
+  Window *_this = static_cast<Window *>(glfwGetWindowUserPointer(window)); // Get the owner class to circumvent static
+
+  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+  {
+    glfwSetWindowShouldClose(window, GL_TRUE);
+  }
+}
+
+void Window::_HandleMouse(
+    GLFWwindow *window,
+    double      x_pos,
+    double y_pos) // WARNING: These need to be doubles! Function pointer signature must match glfwSetCallback expects
+{
+  Window *_this = static_cast<Window *>(glfwGetWindowUserPointer(window)); // Get owner class to circumvent static
+
+  if (_this->_first_mouse_move)
+  {
+    _this->_last_x = x_pos;
+    _this->_last_y = y_pos;
+
+    _this->_first_mouse_move = false;
+  }
+
+  _this->_dx = x_pos - _this->_last_x;
+  _this->_dy = (y_pos - _this->_last_y) * -1; // Flip to avoid inverted up, down looking
+
+  _this->_last_x = x_pos;
+  _this->_last_y = y_pos;
+}
 } // namespace gle
