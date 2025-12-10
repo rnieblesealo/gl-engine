@@ -62,7 +62,6 @@ int main()
 
     // Camera movement
     camera.KeyControl(window.GetKeys(), delta_time);
-    std::cout << window.GetDx() << ", " << window.GetDy() << std::endl;
     camera.MouseControl(window.GetDx(), window.GetDy());
 
     // Rotate triangle
