@@ -16,7 +16,7 @@ public:
          GLfloat   start_look_speed);
   ~Camera();
 
-  void      KeyControl(bool const *keys);
+  void      KeyControl(bool const *keys, float delta_time);
   glm::mat4 CalculateViewMatrix();
 
 private:

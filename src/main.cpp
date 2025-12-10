@@ -4,6 +4,7 @@
 #include "window.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <chrono>
 #include <cstdlib>
 #include <filesystem>
 #include <glm/glm.hpp>
@@ -22,7 +23,7 @@ float tri_rot_delta = 0.35f; // Rotate by this angle every frame
 int main()
 {
   gle::Window window;
-  gle::Camera camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f, 0.01f, 0.0f);
+  gle::Camera camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f, 2.0f, 0.0f);
 
   // clang-format off
   std::vector<GLfloat> pyramid_vertices = {
@@ -44,9 +45,7 @@ int main()
   gle::Shader pyramid_shader(gle::Shader(gle::VERTEX_SHADER_PATH, gle::FRAGMENT_SHADER_PATH));
   gle::Mesh   pyramid(pyramid_vertices, pyramid_indices, pyramid_shader);
 
-  // ==================================================================================================================
-  // MAIN LOOP
-  // ==================================================================================================================
+  auto then = std::chrono::high_resolution_clock::now(); // Initial time for deltatime computation
 
   while (!glfwWindowShouldClose(window.GetHandle()))
   {
@@ -54,8 +53,14 @@ int main()
 
     glfwPollEvents();
 
+    // Compute delta time in seconds
+    // Std. chrono provides high-res clock for this
+    auto  now        = std::chrono::high_resolution_clock::now();
+    float delta_time = std::chrono::duration<float, std::chrono::seconds::period>(now - then).count();
+    then             = now;
+
     // Camera movement
-    camera.KeyControl(window.GetKeys());
+    camera.KeyControl(window.GetKeys(), delta_time);
 
     // Rotate triangle
     gle::tri_rot += gle::tri_rot_delta;

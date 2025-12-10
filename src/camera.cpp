@@ -24,23 +24,23 @@ Camera::Camera(glm::vec3 start_position,
 
 Camera::~Camera() {}
 
-void Camera::KeyControl(bool const *keys)
+void Camera::KeyControl(bool const *keys, float delta_time)
 {
   if (keys[GLFW_KEY_W])
   {
-    this->_position += this->_front * this->_movement_speed;
+    this->_position += this->_front * this->_movement_speed * delta_time;
   }
   if (keys[GLFW_KEY_A])
   {
-    this->_position -= this->_right * this->_movement_speed;
+    this->_position -= this->_right * this->_movement_speed * delta_time;
   }
   if (keys[GLFW_KEY_S])
   {
-    this->_position -= this->_front * this->_movement_speed;
+    this->_position -= this->_front * this->_movement_speed * delta_time;
   }
   if (keys[GLFW_KEY_D])
   {
-    this->_position += this->_right * this->_movement_speed;
+    this->_position += this->_right * this->_movement_speed * delta_time;
   }
 }
 
