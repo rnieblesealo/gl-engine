@@ -12,13 +12,12 @@ Camera::Camera(glm::vec3 start_position,
                GLfloat   start_movement_speed,
                GLfloat   start_look_speed)
     : _position(start_position)
-    , _up(start_up)
+    , _world_up(start_up)
     , _yaw(start_yaw)
     , _pitch(start_pitch)
+    , _front(glm::vec3(0.0f, 0.0f, 1.0f)) // Facing into screen initially
     , _movement_speed(start_movement_speed)
     , _look_speed(start_look_speed)
-    , _front(glm::vec3(0.0f, 0.0f, 1.0f)) // Facing +Z/into screen initially
-    , _world_up(glm::vec3(0.0f, 1.0f, 0.0f))
 {
   this->_Update();
 }
@@ -47,14 +46,14 @@ void Camera::KeyControl(bool const *keys)
 
 glm::mat4 Camera::CalculateViewMatrix()
 {
-  return glm::lookAt(this->_position, this->_position + this->_front, this->_world_up);
+  return glm::lookAt(this->_position, this->_position + this->_front, this->_up);
 }
 
 void Camera::_Update()
 {
-  this->_front.x = cos(glm::radians(this->_yaw)) * cos(glm::radians(this->_pitch));
-  this->_front.y = sin(glm::radians(this->_pitch));
-  this->_front.z = sin(glm::radians(this->_yaw)) * cos(glm::radians(this->_pitch));
+  this->_front.x = glm::cos(glm::radians(this->_yaw)) * glm::cos(glm::radians(this->_pitch));
+  this->_front.y = glm::sin(glm::radians(this->_pitch));
+  this->_front.z = glm::sin(glm::radians(this->_yaw)) * glm::cos(glm::radians(this->_pitch));
   this->_front   = glm::normalize(this->_front);
 
   this->_right = glm::normalize(glm::cross(this->_front, this->_world_up));

@@ -26,7 +26,7 @@ int main()
   // ==================================================================================================================
 
   gle::Window window;
-  gle::Camera camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f, 5.0f, 1.0f);
+  gle::Camera camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f, 0.01f, 0.0f);
 
   // ==================================================================================================================
   // PYRAMID SETUP
@@ -63,7 +63,7 @@ int main()
     glfwPollEvents();
 
     // Camera movement
-    // camera.KeyControl(window.GetKeys());
+    camera.KeyControl(window.GetKeys());
 
     // Rotate triangle
     gle::tri_rot += gle::tri_rot_delta;
@@ -74,7 +74,7 @@ int main()
 
     // Assemble model matrix
     glm::mat4 model(1.0f);
-    model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.5f)); // NOTE: When doing persp, Z into screen is negative!
+    model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // NOTE: When doing persp, Z into screen is negative!
     model = glm::rotate(model, glm::radians(gle::tri_rot), glm::vec3(0.0f, 1.0f, 0.0f));
     model = glm::scale(model, glm::vec3(0.5f, 0.5f, 1.0f));
 
