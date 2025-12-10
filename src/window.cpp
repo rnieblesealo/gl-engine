@@ -76,6 +76,18 @@ void Window::_HandleKeys(GLFWwindow *window, int key, int code, int action, int 
   {
     glfwSetWindowShouldClose(window, GL_TRUE);
   }
+
+  if (key >= 0 && key <= 1024)
+  {
+    if (action == GLFW_PRESS)
+    {
+      _this->_keys[key] = true;
+    }
+    else if (action == GLFW_RELEASE)
+    {
+      _this->_keys[key] = false;
+    }
+  }
 }
 
 void Window::_HandleMouse(
