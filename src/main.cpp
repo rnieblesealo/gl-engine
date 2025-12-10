@@ -10,6 +10,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <iostream>
 
 namespace gle
 {
@@ -23,7 +24,7 @@ float tri_rot_delta = 0.35f; // Rotate by this angle every frame
 int main()
 {
   gle::Window window;
-  gle::Camera camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f, 2.0f, 0.0f);
+  gle::Camera camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f, 2.0f, 0.05f);
 
   // clang-format off
   std::vector<GLfloat> pyramid_vertices = {
@@ -61,6 +62,8 @@ int main()
 
     // Camera movement
     camera.KeyControl(window.GetKeys(), delta_time);
+    std::cout << window.GetDx() << ", " << window.GetDy() << std::endl;
+    camera.MouseControl(window.GetDx(), window.GetDy());
 
     // Rotate triangle
     gle::tri_rot += gle::tri_rot_delta;

@@ -16,6 +16,8 @@ public:
   GLsizei     GetFramebufferWidth();
   GLsizei     GetFramebufferHeight();
   bool const *GetKeys();
+  float       GetDx();
+  float       GetDy();
   void        PollFramebufferSize();
 
 private:
@@ -31,7 +33,7 @@ private:
   float _last_y{0};
   float _dx{0};
   float _dy{0};
-  bool  _first_mouse_move{false};
+  bool  _mouse_moved{false};
 
   static void _HandleKeys(GLFWwindow *window, int key, int code, int action, int mode);
   static void _HandleMouse(GLFWwindow *window, double x_pos, double y_pos);

@@ -44,6 +44,19 @@ void Camera::KeyControl(bool const *keys, float delta_time)
   }
 }
 
+void Camera::MouseControl(float dx, float dy)
+{
+  dx *= this->_look_speed;
+  dy *= this->_look_speed;
+
+  this->_yaw += dx;
+  this->_pitch += dy;
+
+  this->_pitch = glm::clamp(this->_pitch, -90.0f, 90.0f); // You can't turn your head beyond your spine...
+
+  this->_Update();
+}
+
 glm::mat4 Camera::CalculateViewMatrix()
 {
   return glm::lookAt(this->_position, this->_position + this->_front, this->_up);

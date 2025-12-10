@@ -17,6 +17,7 @@ public:
   ~Camera();
 
   void      KeyControl(bool const *keys, float delta_time);
+  void      MouseControl(float dx, float dy);
   glm::mat4 CalculateViewMatrix();
 
 private:

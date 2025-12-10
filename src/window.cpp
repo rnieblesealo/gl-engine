@@ -97,12 +97,12 @@ void Window::_HandleMouse(
 {
   Window *_this = static_cast<Window *>(glfwGetWindowUserPointer(window)); // Get owner class to circumvent static
 
-  if (_this->_first_mouse_move)
+  if (!_this->_mouse_moved)
   {
     _this->_last_x = x_pos;
     _this->_last_y = y_pos;
 
-    _this->_first_mouse_move = false;
+    _this->_mouse_moved = true;
   }
 
   _this->_dx = x_pos - _this->_last_x;
@@ -113,4 +113,7 @@ void Window::_HandleMouse(
 }
 
 bool const *Window::GetKeys() { return this->_keys.data(); }
+
+float Window::GetDx() { return this->_dx; }
+float Window::GetDy() { return this->_dy; }
 } // namespace gle
