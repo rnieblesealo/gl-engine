@@ -16,11 +16,13 @@ namespace gle
 {
 const std::filesystem::path VERTEX_SHADER_PATH("glsl/vertex.glsl");
 const std::filesystem::path FRAGMENT_SHADER_PATH("glsl/fragment.glsl");
+
 const std::filesystem::path BRICK_TEXTURE_PATH("assets/brick.png");
 const std::filesystem::path DIRT_TEXTURE_PATH("assets/dirt.png");
+const std::filesystem::path OBAMA_TEXTURE_PATH("assets/obama.png");
 
-float tri_rot       = 0.0f;  // Current tri rotation
-float tri_rot_delta = 0.35f; // Rotate by this angle every frame
+float tri_rot       = 0.0f; // Current tri rotation
+float tri_rot_delta = 0.0f; // Rotate by this angle every frame
 } // namespace gle
 
 int main()
@@ -32,9 +34,9 @@ int main()
   std::vector<GLfloat> pyramid_vertices = {
   //    x      y     z       u     v
     -1.0f, -1.0f, 0.0f,   0.0f, 0.0f,
-     0.0f, -1.0f, 1.0f,   0.5f, 0.0f,
      1.0f, -1.0f, 0.0f,   1.0f, 0.0f,
-     0.0f,  1.0f, 0.0f,   0.5f, 1.0f
+     0.0f,  1.0f, 0.0f,   1.0f, 1.0f,
+     0.0f, -1.0f, 1.0f,   0.5f, 0.0f,
   };
 
   // These form a shitty pyramid :)
@@ -50,6 +52,8 @@ int main()
   gle::Mesh   pyramid(pyramid_vertices, pyramid_indices, pyramid_shader);
 
   gle::Texture t_brick(gle::BRICK_TEXTURE_PATH);
+  gle::Texture t_dirt(gle::DIRT_TEXTURE_PATH);
+  gle::Texture t_obama(gle::OBAMA_TEXTURE_PATH);
 
   auto then = std::chrono::high_resolution_clock::now(); // Initial time for deltatime computation
 
@@ -109,7 +113,7 @@ int main()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    t_brick.UseTexture();
+    t_obama.UseTexture();
     pyramid.Draw();
 
     glfwSwapBuffers(window.GetHandle());

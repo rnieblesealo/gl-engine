@@ -3,8 +3,8 @@
 
 namespace gle
 {
-constexpr GLint WINDOW_WIDTH  = 500;
-constexpr GLint WINDOW_HEIGHT = 500;
+constexpr GLint WINDOW_WIDTH  = 800;
+constexpr GLint WINDOW_HEIGHT = 600;
 
 Window::Window()
 {

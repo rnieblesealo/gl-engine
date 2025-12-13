@@ -22,15 +22,15 @@ Mesh::Mesh(std::vector<GLfloat> const &vertices, std::vector<GLuint> const &indi
   // Gen VBO
   glGenBuffers(1, &this->_vbo);
   glBindBuffer(GL_ARRAY_BUFFER, this->_vbo);
-  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLuint), vertices.data(), GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices.front()), vertices.data(), GL_STATIC_DRAW);
 
   // Position vertex attributes
-  glVertexAttribPointer(0,                            // Shader input location where to store position vertex attr.
-                        3,                            // Amount of components in position (x, y, z make 3)
-                        GL_FLOAT,                     // Data type of each vertex
-                        GL_FALSE,                     // Normalize the vertices?
-                        sizeof(vertices.front()) * 5, // Stride; jump this amount of bytes to get to next vertex
-                        0                             // Offset from first VBO value where data actually begins
+  glVertexAttribPointer(0,                           // Shader input location where to store position vertex attr.
+                        3,                           // Amount of components in position (x, y, z make 3)
+                        GL_FLOAT,                    // Data type of each vertex
+                        GL_FALSE,                    // Normalize the vertices?
+                        sizeof vertices.front() * 5, // Stride; jump this amount of bytes to get to next vertex
+                        0                            // Offset from first VBO value where data actually begins
   );
 
   /* "Take the data described by glVertexAttribPointer at this index,
@@ -40,7 +40,7 @@ Mesh::Mesh(std::vector<GLfloat> const &vertices, std::vector<GLuint> const &indi
 
   // Texture coordinate vertex attributes
   glVertexAttribPointer(
-      1, 2, GL_FLOAT, GL_FALSE, sizeof(vertices.front()) * 5, reinterpret_cast<void *>(sizeof(vertices.front() * 3)));
+      1, 2, GL_FLOAT, GL_FALSE, sizeof vertices.front() * 5, reinterpret_cast<void *>(sizeof vertices.front() * 3));
 
   glEnableVertexAttribArray(1);
 
@@ -49,7 +49,7 @@ Mesh::Mesh(std::vector<GLfloat> const &vertices, std::vector<GLuint> const &indi
   // Gen EBO
   glGenBuffers(1, &this->_ebo);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->_ebo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(indices.front()), indices.data(), GL_STATIC_DRAW);
 
   this->_index_count = indices.size();
 
