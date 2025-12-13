@@ -11,9 +11,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
 namespace gle
 {
 const std::filesystem::path VERTEX_SHADER_PATH("../src/glsl/vertex.glsl");
@@ -30,10 +27,10 @@ int main()
 
   // clang-format off
   std::vector<GLfloat> pyramid_vertices = {
-    -1.0f, -1.0f,  0.0f, 
-     0.0f, -1.0f,  1.0f, // Back coord 
-     1.0f, -1.0f,  0.0f, 
-     0.0f,  1.0f,  0.0f, 
+    -1.0f, -1.0f,  0.0f, 0.0f, 0.0f,
+     0.0f, -1.0f,  1.0f, 0.0f, 0.0f,
+     1.0f, -1.0f,  0.0f, 0.0f, 0.0f,
+     0.0f,  1.0f,  0.0f, 0.0f, 0.0f
   };
 
   // These form a shitty pyramid :)
