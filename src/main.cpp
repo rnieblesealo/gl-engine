@@ -52,8 +52,6 @@ int main()
   gle::Mesh   pyramid(pyramid_vertices, pyramid_indices, pyramid_shader);
 
   gle::Texture t_brick(gle::BRICK_TEXTURE_PATH);
-  gle::Texture t_dirt(gle::DIRT_TEXTURE_PATH);
-  gle::Texture t_obama(gle::OBAMA_TEXTURE_PATH);
 
   auto then = std::chrono::high_resolution_clock::now(); // Initial time for deltatime computation
 
@@ -113,7 +111,7 @@ int main()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    t_obama.UseTexture();
+    t_brick.UseTexture();
     pyramid.Draw();
 
     glfwSwapBuffers(window.GetHandle());
