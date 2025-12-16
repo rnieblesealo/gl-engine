@@ -6,9 +6,17 @@
 
 The basics! VAOs, VBOs, IBOs, shaders, transforms, projection... Nothing crazy, but gotta start somewhere!
 
+### Movable Camera & Texture Sampling
+
 ![camera-texture](.github/camera-texture.gif)
 
 Added basic textures and implemented a scene view camera! WASD to move around, mouse movement to look around.
+
+### Ambient + Diffuse Lighting 
+
+![diffuse-lighting](.github/diffuse.png)
+
+Added ambient and diffuse lighting using the Phong model!
 
 # Design Stuff
 
