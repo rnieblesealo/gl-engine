@@ -4,24 +4,11 @@ A small program made to learn the ins and outs of OpenGL. Enjoy my journey into 
 
 ## Cool Milestones
 
-<div style="display: grid; grid-template-columns: repeat(2, 1fr);">
-    <div style="display: flex; flex-direction: column; align-items: center">
-        <img src=".github/resized_spinning-pyramid.gif" style="max-width: 300px; aspect-ratio: 1/1"/>
-        <p style="text-align: center; margin-top: 10px; font-size: 0.9rem">Basic pyramid with VAO, IBO, shaders and transforms!</p>
-    </div>
-    <div style="display: flex; flex-direction: column; align-items: center">
-        <img src=".github/resized_camera-texture.gif" style="max-width: 300px; aspect-ratio: 1/1"/>
-        <p style="text-align: center; margin-top: 10px; font-size: 0.9rem">Freehand camera and texture sampling</p>
-    </div>
-    <div style="display: flex; flex-direction: column; align-items: center">
-        <img src=".github/resized_diffuse.png" style="max-width: 300px; aspect-ratio: 1/1"/>
-        <p style="text-align: center; margin-top: 10px; font-size: 0.9rem">Ambient + diffuse lighting</p>
-    </div>
-    <div style="display: flex; flex-direction: column; align-items: center">
-        <img src=".github/resized_specular.gif" style="max-width: 300px; aspect-ratio: 1/1"/>
-        <p style="text-align: center; margin-top: 10px; font-size: 0.9rem">Specular lighting</p>
-    </div>
-</div>
+| | |
+|:---:|:---:|
+| ![spinning pyramid](.github/resized_spinning-pyramid.gif)<br>Basic buffers, shaders & transforms!         | ![camera texture](.github/resized_camera-texture.gif)<br>Freehand camera and texture sampling |
+| ![diffuse](.github/resized_diffuse.png)<br>Ambient + diffuse lighting                                             | ![specular](.github/resized_specular.gif)<br>Specular lighting |
+
 
 ## Software Design  
 
