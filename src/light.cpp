@@ -17,19 +17,16 @@ Light::Light(glm::float32 r,
 
 Light::~Light() {}
 
-void Light::WriteLightProperties(Material &material)
+void Light::WriteLightProperties(Shader &shader)
 {
-  glUniform3f(material.GetShader().GetUniformLocation("directional_light.color"),
-              this->_color.r,
-              this->_color.g,
-              this->_color.b);
+  glUniform3f(shader.GetUniformLocation("light_properties.color"), this->_color.r, this->_color.g, this->_color.b);
 
-  glUniform3f(material.GetShader().GetUniformLocation("directional_light.direction"),
+  glUniform3f(shader.GetUniformLocation("light_properties.direction"),
               this->_direction.x,
               this->_direction.y,
               this->_direction.z);
 
-  glUniform1f(material.GetShader().GetUniformLocation("directional_light.ambient_intensity"), this->_ambient_intensity);
-  glUniform1f(material.GetShader().GetUniformLocation("directional_light.diffuse_intensity"), this->_diffuse_intensity);
+  glUniform1f(shader.GetUniformLocation("light_properties.ambient_intensity"), this->_ambient_intensity);
+  glUniform1f(shader.GetUniformLocation("light_properties.diffuse_intensity"), this->_diffuse_intensity);
 }
 } // namespace gle

@@ -10,7 +10,7 @@ namespace gle
 {
 
 // clang-format off
-std::array<std::string, 13> _GLE_BASE_SHADER_UNIFORMS{
+std::array<std::string, 11> _GLE_BASE_SHADER_UNIFORMS{
   "model",
   "projection",
   "view",
@@ -20,7 +20,7 @@ std::array<std::string, 13> _GLE_BASE_SHADER_UNIFORMS{
   "light_properties.direction",
   "light_properties.ambient_intensity",
   "light_properties.diffuse_intensity",
-  "material_properties.shininess"
+  "material_properties.shininess",
   "material_properties.specular_intensity"
 };
 // clang-format on

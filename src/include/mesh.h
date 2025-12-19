@@ -15,7 +15,7 @@ public:
   Mesh(std::vector<GLfloat> const &vertices, std::vector<GLuint> const &indices, Material &material);
   ~Mesh();
 
-  void Draw(Material &material);
+  void Draw();
 
 private:
   GLuint  _vao, _vbo, _ebo;
@@ -24,5 +24,7 @@ private:
   glm::vec3    _translation;
   glm::float32 _rotation; // WARNING: Only rotates around Y for now
   glm::vec3    _scale;
+
+  Material _material;
 };
 } // namespace gle

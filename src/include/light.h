@@ -1,6 +1,6 @@
 #pragma once
 
-#include "material.h"
+#include "shader.h"
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
@@ -17,7 +17,7 @@ public:
         glm::float32 diffuse_intensity);
   ~Light();
 
-  void WriteLightProperties(Material &material);
+  void WriteLightProperties(Shader &material);
 
 private:
   glm::vec3    _direction;

@@ -194,3 +194,7 @@ APPENDIX B. PROBLEMS I RAN INTO
       set active material the nrender mesh with that material seems loose
         we can forget to set the appropriate material active and call draw on a mesh using it
         this can lead to easy misuse and consequent errors; it's very unsafe and would SUCK in prod 
+- IT WOULD BE USEFUL TO HAVE MACROS FOR THE DIFFERENT SHADER COMMON UNIFORMS
+- projection matrix uses stuff from window and camera...
+  (fov, near, far are properties of camera; aspect ratio is property of window...)
+  - no choice but to pass aspect to function that writes projection matrix...

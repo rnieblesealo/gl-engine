@@ -18,7 +18,7 @@ Mesh::Mesh(std::vector<GLfloat> const &vertices, std::vector<GLuint> const &indi
   glBindVertexArray(this->_vao);
 
   // Validate material shader against VAO
-  if (!material.GetShader().Validate(this->_vao))
+  if (!this->_material.GetShader().Validate(this->_vao))
   {
     std::cerr << "Failed to validate material aganist mesh VAO" << std::endl;
     std::exit(EXIT_FAILURE);
@@ -76,7 +76,7 @@ Mesh::~Mesh()
   glDeleteVertexArrays(1, &this->_vao);
 }
 
-void Mesh::Draw(Material &material)
+void Mesh::Draw()
 {
   // Assemble and write model matrix
   glm::mat4 model(1.0f);

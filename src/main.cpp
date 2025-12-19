@@ -84,7 +84,7 @@ int main()
   gle::Window window;
 
   gle::Camera camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f, 2.0f, 0.1f);
-  gle::Light  directional_light(1.0f, 1.0f, 1.0f, glm::vec3(2.0f, -1.0f, -2.0f), 0.1f, 0.5f);
+  gle::Light  light(1.0f, 1.0f, 1.0f, glm::vec3(2.0f, -1.0f, -2.0f), 0.1f, 0.5f);
 
   gle::Shader   s_phong(gle::Shader(gle::VERTEX_SHADER_PATH, gle::FRAGMENT_SHADER_PATH));
   gle::Texture  t_metal(gle::METAL_TEXTURE_PATH);
@@ -130,63 +130,25 @@ int main()
     camera.KeyControl(window, delta_time);
     camera.MouseControl(window);
 
-    // Rotate triangle
-    gle::tri_rot += gle::tri_rot_delta;
-    if (gle::tri_rot >= 360.0f)
-    {
-      gle::tri_rot = 0.0f;
-    }
-
-    // Assemble model matrix
-    glm::mat4 model(1.0f);
-    model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // NOTE: When doing persp, Z into screen is negative!
-    model = glm::rotate(model, glm::radians(gle::tri_rot), glm::vec3(0.0f, 1.0f, 0.0f));
-    model = glm::scale(model, glm::vec3(0.5f, 0.5f, 1.0f));
-
-    s_phong.WriteUniformMat4("model", model);
-
     // Update framebuffer size to keep aspect corrected
     window.PollFramebufferSize();
     glViewport(0, 0, window.GetFramebufferWidth(), window.GetFramebufferHeight()); // Must update viewport to match!
 
-    // Assemble projection matrix
-    glm::float32 fov  = glm::radians(60.0f);
-    glm::float32 near = 0.1f;
-    glm::float32 far  = 100.0f;
+    glm::float32 window_aspect =
+        static_cast<GLfloat>(window.GetFramebufferWidth()) / static_cast<GLfloat>(window.GetFramebufferHeight());
 
-    glm::mat4 projection = glm::perspective(fov,
-                                            static_cast<GLfloat>(window.GetFramebufferWidth()) /
-                                                static_cast<GLfloat>(window.GetFramebufferHeight()),
-                                            near,
-                                            far);
-
-    s_phong.WriteUniformMat4("projection", projection);
-
-    // Compute and pass view matrix
-    s_phong.WriteUniformMat4("view", camera.CalculateViewMatrix());
-
-    // Lighting
-    s_phong.WriteUniformVec3("directional_light.color", directional_light.GetColor());
-    s_phong.WriteUniformVec3("directional_light.direction", directional_light.GetDirection());
-    s_phong.WriteUniformFloat("directional_light.ambient_intensity", directional_light.GetAmbientIntensity());
-    s_phong.WriteUniformFloat("directional_light.diffuse_intensity", directional_light.GetDiffuseIntensity());
-
-    // Camera
-    s_phong.WriteUniformVec3("eye_pos", camera.GetPosition());
-
-    // Material
-    s_phong.WriteUniformFloat("material.shininess", pyramid_material.GetShininess());
-    s_phong.WriteUniformFloat("material.specular_intensity", pyramid_material.GetSpecularIntensity());
-
-    // RENDER ---------------------------------------------------------------------------------------------------------
+    // DRAW CALLS -----------------------------------------------------------------------------------------------------
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // clang-format off
     pyramid_material.UseMaterial();
-      directional_light.WriteLightProperties(pyramid_material.Getu); // TODO: I don't like that we have to pass the material... Frick. INTERIM SOLN: Pass in table of uniform instead of whole material!
-      pyramid.Draw(pyramid_material);
+      light.WriteLightProperties(pyramid_material.GetShader()); // TODO: I don't like that we have to pass shader but ok. 
+      camera.WriteEyePosition(pyramid_material.GetShader());
+      camera.WriteViewMatrix(pyramid_material.GetShader());
+      camera.WriteProjectionMatrix(pyramid_material.GetShader(), window_aspect);
+      pyramid.Draw();
     // clang-format on
 
     glfwSwapBuffers(window.GetHandle());
