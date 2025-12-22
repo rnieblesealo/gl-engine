@@ -46,7 +46,7 @@ void main() {
       specular_factor = pow(specular_factor, material.shininess);
       specular_color = vec4(directional_light.color * material.specular_intensity * specular_factor, 1.0f);
     }
-
-    color = texture(sampler, texcoord) * (ambient_color + diffuse_color + specular_color);
   }
+
+  color = texture(sampler, texcoord) * (ambient_color + diffuse_color + specular_color);
 }
