@@ -1,4 +1,4 @@
-#version 410 core
+#version 330 core
 
 struct LightProperties {
   vec3 color;
@@ -33,7 +33,7 @@ void main() {
   float diffuse_factor = clamp(dot(N, L), 0.0f, 1.0f);
   vec4 diffuse_color = vec4(light_properties.color, 1.0f) * light_properties.diffuse_intensity * diffuse_factor;
 
-  vec4 specular_color = vec4(0, 0, 0, 0);
+  vec4 specular_color = vec4(0, 0, 0, 1);
 
   // If there isn't even diffuse light there can't be specular light! Keep it at 0
   if (diffuse_factor > 0) {
@@ -46,7 +46,7 @@ void main() {
       specular_factor = pow(specular_factor, material_properties.shininess);
       specular_color = vec4(light_properties.color * material_properties.specular_intensity * specular_factor, 1.0f);
     }
-
-    color = texture(sampler, texcoord) * (ambient_color + diffuse_color + specular_color);
   }
+
+  color = texture(sampler, texcoord) * (ambient_color + diffuse_color + specular_color);
 }
